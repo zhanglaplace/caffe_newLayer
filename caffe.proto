@@ -1338,7 +1338,7 @@ message V1LayerParameter {
     THRESHOLD = 31;
     CENTERLOSS = 40;
     WEIGHTEDSOFTMAXWITHLOSS = 41;
-    XCENTERLOSS = 42;
+    //XCENTERLOSS = 42;
   }
   optional LayerType type = 5;
   repeated BlobProto blobs = 6;
@@ -1384,7 +1384,7 @@ message V1LayerParameter {
   optional V0LayerParameter layer = 1;
   optional CenterLossParameter center_loss_param = 52;
   optional WeightedSoftmaxWithLossParameter weighted_softmax_param = 53;
-  optional XCenterLossParameter xcenter_loss_param = 54;
+  //optional XCenterLossParameter xcenter_loss_param = 54;
 
 }
 
