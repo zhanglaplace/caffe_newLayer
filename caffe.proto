@@ -306,7 +306,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 153 (last added:largemargin_inner_product_param)
+// LayerParameter next available layer-specific ID: 153 (last added: range_loss_layer)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -407,14 +407,14 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
-  optional CenterLossParameter center_loss_param = 151;
-  optional BNParameter bn_param = 152;
-  optional LargeMarginInnerProductParameter largemargin_inner_product_param = 153;
-  optional FlipParameter flip_param = 154;
-  optional WeightedSoftmaxWithLossParameter weighted_softmax_param = 155;
-  optional XCenterLossParameter xcenter_loss_param = 156;
   optional MILDataParameter mil_data_param = 0x004d4944; //"MID"
   optional MILParameter mil_param = 0x004d494c; //"MIL"
+  optional CenterLossParameter center_loss_param = 151;
+  optional RangeLossParameter range_loss_param = 152;
+  optional BNParameter bn_param = 153;
+  optional LargeMarginInnerProductParameter largemargin_inner_product_param = 154;
+  optional FlipParameter flip_param = 155;
+  optional IslandLossParameter island_loss_param = 156;
 }
 
 // Message that stores parameters used to apply transformation
@@ -585,7 +585,7 @@ message ConvolutionParameter {
   repeated uint32 stride = 6; // The stride; defaults to 1
   // Factor used to dilate the kernel, (implicitly) zero-filling the resulting
   // holes. (Kernel dilation is sometimes referred to by its use in the
-  // algorithme ид trous from Holschneider et al. 1987.)
+  // algorithme ├а trous from Holschneider et al. 1987.)
   repeated uint32 dilation = 18; // The dilation; defaults to 1
 
   // For 2D convolution only, the *_h and *_w versions may also be used to
@@ -818,6 +818,8 @@ message ImageDataParameter {
   // data.
   optional bool mirror = 6 [default = false];
   optional string root_folder = 12 [default = ""];
+  optional uint32 uniform_num = 14 [default = 1];
+
 }
 
 message InfogainLossParameter {
@@ -1336,9 +1338,9 @@ message V1LayerParameter {
     TANH = 23;
     WINDOW_DATA = 24;
     THRESHOLD = 31;
-    CENTERLOSS = 40;
-    WEIGHTEDSOFTMAXWITHLOSS = 41;
-    //XCENTERLOSS = 42;
+    CENTER_LOSS=40;
+    RANGE_LOSS=41;
+    //ISLAND_LOSS=42;
   }
   optional LayerType type = 5;
   repeated BlobProto blobs = 6;
@@ -1354,6 +1356,8 @@ message V1LayerParameter {
   optional AccuracyParameter accuracy_param = 27;
   optional ArgMaxParameter argmax_param = 23;
   optional ConcatParameter concat_param = 9;
+  optional CenterLossParameter center_loss_param = 51;
+  optional RangeLossParameter range_loss_param = 52;
   optional ContrastiveLossParameter contrastive_loss_param = 40;
   optional ConvolutionParameter convolution_param = 10;
   optional DataParameter data_param = 11;
@@ -1367,6 +1371,7 @@ message V1LayerParameter {
   optional ImageDataParameter image_data_param = 15;
   optional InfogainLossParameter infogain_loss_param = 16;
   optional InnerProductParameter inner_product_param = 17;
+  optional IslandLossParameter island_loss_param = 53;
   optional LRNParameter lrn_param = 18;
   optional MemoryDataParameter memory_data_param = 22;
   optional MVNParameter mvn_param = 34;
@@ -1382,10 +1387,6 @@ message V1LayerParameter {
   optional TransformationParameter transform_param = 36;
   optional LossParameter loss_param = 42;
   optional V0LayerParameter layer = 1;
-  optional CenterLossParameter center_loss_param = 52;
-  optional WeightedSoftmaxWithLossParameter weighted_softmax_param = 53;
-  //optional XCenterLossParameter xcenter_loss_param = 54;
-
 }
 
 // DEPRECATED: V0LayerParameter is the old way of specifying layer parameters
@@ -1499,6 +1500,14 @@ message CenterLossParameter {
   // all preceding axes are retained in the output.
   // May be negative to index from the end (e.g., -1 for the last axis).
   optional int32 axis = 3 [default = 1];
+  optional string distance_type = 29 [default = "L2"];
+}
+
+message RangeLossParameter {
+  optional int32 choose_k = 1 [default = 2];
+  optional float inter_weight = 2 [default = 10e-4];
+  optional float intra_weight = 3 [default = 10e-5];
+  optional float margin = 4 [default = 2e4];
 }
 
 message BNParameter {
@@ -1542,29 +1551,13 @@ message FlipParameter {
   optional bool flip_height = 2 [default = false];
 }
 
-message WeightedSoftmaxWithLossParameter {
-  enum Engine {
-    DEFAULT = 0;
-    CAFFE = 1;
-    CUDNN = 2;
-  }
-  optional Engine engine = 1 [default = DEFAULT];
 
-  // The axis along which to perform the softmax -- may be negative to index
-  // from the end (e.g., -1 for the last axis).
-  // Any other axes will be evaluated as independent softmaxes.
-  optional int32 axis = 2 [default = 1];
-
-  optional string positions = 3 [default =""];
-  optional string weights = 4 [default = ""];
-}
-
-message XCenterLossParameter {
+message IslandLossParameter {
   optional uint32 num_output = 1; // The number of outputs for the layer
   optional FillerParameter center_filler = 2; // The filler for the centers
   // The first axis to be lumped into a single inner product computation;
   // all preceding axes are retained in the output.
   // May be negative to index from the end (e.g., -1 for the last axis).
   optional int32 axis = 3 [default = 1];
-  optional float lambda = 4 [default = 1];
+  optional float lambda = 4 [default = 1.0];
 }
