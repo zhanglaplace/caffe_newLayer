@@ -1,11 +1,11 @@
 ---
-title: Caffe 激励层(Activation)分析
+title: Caffe NeuronLayer分析
 date: 2017-10-20 11:16:01
 tags: [Caffe,DeepLearning]
 categories: Caffe
 ---
 
-### Caffe_Activation
+### Caffe_NeuronLayer
   一般来说，激励层的输入输出尺寸一致，为非线性函数，完成非线性映射，从而能够拟合更为复杂的函数表达式激励层都派生于NeuronLayer: class XXXlayer : public NeuronLayer<Dtype>
 #### 1.基本函数
   激励层的基本函数较为简单，主要包含构造函数和前向、后向函数
@@ -23,7 +23,7 @@ categories: Caffe
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
 ```
 <!--more-->
-#### 2.常用激励函数
+#### 2.常用$Neuron$层
 
 ##### (1) Relu/PRelu Rectufied Linear Units
    ReLU的函数表达式为 $f(x) = x\*(x>0) + negative\_slope\*x\*(x <= 0)$ 具体实现如下

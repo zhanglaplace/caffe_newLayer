@@ -7,7 +7,7 @@ categories: Caffe
 
 ### Caffe CommonLayer分析
   $Caffe$中包含了很多通用的功能层，包含了$concat$,$slice$,$split$,$crop$,$flip$,$scale\_layer$等,这些层在网络中经常被使用，本文也将对其中的常见layer进行说明与源码分析。
-
+<!--more-->
 #### 1.常用$Layer$
 
 ##### (1) $CropLayer$

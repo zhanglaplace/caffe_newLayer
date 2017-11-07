@@ -8,7 +8,7 @@ categories: Caffe
 ### Caffe_Loss
   损失函数为深度学习中重要的一个组成部分，各种优化算法均是基于Loss来的，损失函数的设计好坏很大程度下能够影响最终网络学习的好坏。派生于 $LossLayer$,根据不同的Loss层有不同的参数;
 #### 1.基本函数
-    主要包含构造函数，前向、后向以及Reshape，部分有SetUp的函数，每层都有Loss参数
+  主要包含构造函数，前向、后向以及Reshape，部分有SetUp的函数，每层都有Loss参数
 ```cpp
     explicit XXXLossLayer(const LayerParameter& param):
     LossLayer<Dtype>(param),diff_() {}
@@ -26,7 +26,7 @@ categories: Caffe
 <!--more-->
 
 #### 2.常用损失函数
-    由于训练中，采用mini_batch的模式
+  通常在训练过程中，采用mini_batch的方式
 ##### (1) EuclideanLoss (欧式损失函数，L2损失)
   $EuclideanLoss$的公式表达为 $loss = \frac{1}{2n}\sum_{i=1}^n{(y_{i}-\hat{y}_{i})^2}$
 ```cpp
@@ -234,8 +234,8 @@ $$
 
 ```
 
-##### (3) SmoothL1Loss (RCNN后提出的Loss)
-    SmoothL1Loss为欧式均方误差的修改版，为分段函数，对离散点不敏感,具体的公式如下:
+##### (3) SmoothL1Loss (RCNN提出的Loss)
+  $SmoothL1Loss$为欧式均方误差的修改版，为分段函数，对离散点不敏感,具体的公式如下:
 $$
 SmoothL1Loss(x) =
 \begin{cases}
@@ -344,10 +344,10 @@ $$
         }
     }
 ```
-    反向过程中根据求导公式可以得到如下式子，Backward的过程也如下所示
+  反向过程中根据求导公式可以得到如下式子，Backward的过程也如下所示
 $$\frac{\partial Loss}{\partial x} = w_{in}\*w_{out}\*\frac{\partial SmoothL1(x)}{\partial x}$$
 
-cpu版本可以自己实现，只需要把GPU_data_diff换成cpu,以及gpu的smoothL1写成CPU的即可。
+cpu版本可以自己实现，只需要把$GPU\_data\_diff$换成$cpu$,以及$gpu$的$smoothL1$写成$CPU$的即可。
 ```cpp
     //backward过程，根据导函数
     // f'()
