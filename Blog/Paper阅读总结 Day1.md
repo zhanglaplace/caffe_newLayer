@@ -48,3 +48,6 @@ $$\zeta = \zeta_S+\lambda (\zeta_C+\lambda_1\zeta_{is})$$
   MORPH和PAL database
 ### 实验效果与结论
   实验对比了几种特征单独的实验效果以及crop后的效果，实验说明了最后的回归很重要，然后CNN的特征比这些自己提取的特征好。
+  >本文作者： 张峰
+  >本文链接：[http://www.enjoyai.site/2017/11/06/](http://www.enjoyai.site/2017/11/06/Caffe_BatchNormalization/ )
+  >版权声明：本博客所有文章，均采用CC BY-NC-SA 3.0 许可协议。转载请注明出处！

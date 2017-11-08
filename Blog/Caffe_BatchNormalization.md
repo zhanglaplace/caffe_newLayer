@@ -73,7 +73,7 @@ categories: Caffe
 ```
 ### 成员函数
   成员函数主要也是LayerSetUp,Reshape,Forward和Backward,下面是具体的实现：
-  (1) LayerSetUp,层次的建立，相应数据的读取
+  #### LayerSetUp,层次的建立，相应数据的读取
 ```cpp
 //LayerSetUp函数的具体实现
 template <typename Dtype>
@@ -115,7 +115,7 @@ void LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     }
   }
 ```
-(2) Reshape,根据BN层在网络的位置，调整bottom和top的shape
+#### Reshape,根据BN层在网络的位置，调整bottom和top的shape
 Reshape层主要是完成中间变量的值，由于是按照通道求取均值和方差，而CaffeBlob是NCHW,因此先求取了HW,后根据BatchN求最后的输出C,因此有了中间的batch_sum_multiplier_和spatial_sum_multiplier_以及num_by_chans_其中num_by_chans_与前两者不想同，前两者为方便计算，初始为1，而num_by_chans_为中间过渡
 ```cpp
 template <typename Dtype>
@@ -155,7 +155,7 @@ void BatchNormLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
     }
   }
 ```
-(3) Forward 完整前向计算
+#### Forward 前向计算
 前向计算，根据公式完成前计算，x_norm与top相同，均为归一化的值
 ```cpp
 template <typename Dtype>
@@ -257,13 +257,91 @@ void BatchNormLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
      caffe_cpu_gemm<Dtype>(CBlasNoTrans,CBlasNoTrans,num*channels_,spatial_dim,
         1, 1.,num_by_chans_.cpu_data(),spatial_sum_multiplier_.cpu_data(), 0,
         temp_.mutable_cpu_data());
+    // temp最终保存的是sqrt（方差+eps)
      caffe_cpu_div(top[0].count(),top_data,temp_.cpu_data(),top_data);
   }
 ```
-整个forward过程按照x-mean/variance的过程进行，包含了求mean和variance，他们都是C*1的向量，然后输入的是NCHW,因此通过了gemm操作做广播填充到整个featuremap然后完成减mean和除以方差的操作。
+整个forward过程按照x-mean/variance的过程进行，包含了求mean和variance，他们都是C*1的向量，然后输入的是NCHW,因此通过了gemm操作做广播填充到整个featuremap然后完成减mean和除以方差的操作。同时需要注意caffe的inplace操作，所以用x_norm保存原始的top值，后续修改也不会影响它。
 
+#### Backward过程，根据梯度，反向计算
+  Backward过程会根据前面所推导的公式进行计算，具体的实现如下面所示.
+ ```cpp
+ template <typename Dtype>
+ void BatchNormLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
+     const vector<bool>& propagate_down,const vector<Blob<Dtype>*>& bottom) {
+     const Dtype* top_diff;
+     if (bottom[0] != top[0]) { // 判断是否同名
+         top_diff = top[0]->cpu_diff();
+     }
+     else{
+         caffe_copy(x_norm_.count(),top[0]->cpu_diff(),x_norm_.mutable_cpu_diff());
+         top_diff = x_norm_.cpu_diff();
+     }
+     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
+     if (use_global_stats_) { // 测试阶段
+         caffe_div(temp_.count(),top_diff,temp_.cpu_data(),bottom_diff);
+         return ; // 测试阶段不需要计算梯度。
+     }
+     const Dtype* top_data = x_norm_.cpu_data();
+     int num = bottom[0]->shape(0); //n
+     int spatial_dim = bottom[0]->count(2); // H*W
 
+     // 根据推导的公式开始具体计算。
+     // dE(Y)/dX =
+     //   (top_diff- mean(top_diff) - mean(top_diff \cdot Y) \cdot Y)
+     //     ./ sqrt(var(X) + eps)
 
+     // sum(top_diff \cdot Y) ,y为x_norm_ NCHW,求取的均先求C通道的均值
+     caffe_mul(temp_.count(),top_data,top_diff,bottom_diff);
+     //NC*HW* HW*1 =  NC*1
+     caffe_cpu_gemv<Dtype>(CblasNoTrans,channels_*num,spatial_dim,1.,
+        bottom_diff,spatial_sum_multiplier_.cpu_data(),0,
+        num_by_chans_.mutable_cpu_data());
+     // (NC)^T*1 * N*1 =  C*1
+     caffe_cpu_gemv<Dtype>(CBlasTrans,num,channels_,1.,
+        num_by_chans_.cpu_data(),batch_sum_multiplier_.cpu_data(),
+        0,mean_.mutable_cpu_data());
+
+    //reshape broadcast
+    // N*1  * 1* C = N* C
+    caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans,num,channels_,1,1,
+        batch_sum_multiplier_.cpu_data(),mean_.cpu_data(),0,
+        num_by_chans_.mutable_cpu_data());
+    // N*C *1  * 1* HW =  NC* HW
+    caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans,num*channels_,spatial_dim,
+        1,1.,num_by_chans_.cpu_data(),spatial_sum_multiplier_.cpu_data(),0,
+        bottom_diff);
+    //相当与 sum (DE/DY .\cdot Y)
+
+    // sum(dE/dY \cdot Y) \cdot Y
+    caffe_mul(temp_.count(), top_data, bottom_diff, bottom_diff);
+
+    // 完成了右边一个部分，还有前面的 sum(DE/DY)和DE/DY
+    // 再完成sum(DE/DY)
+    caffe_cpu_gemv<Dtype>(CblasNoTrans,channels_*num,spatial_dim,1,
+        top_diff,spatial_sum_multiplier_.cpu_data(),0.,
+        num_by_chans_.mutable_cpu_data());
+    caffe_cpu_gemv<Dtype>(CBlasTrans,num,channels_,1.,
+        num_by_chans_.cpu_data(),batch_sum_multiplier_.cpu_data(),0,
+        mean_.mutable_cpu_data());
+    //reshape broadcast
+    caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans,num,channels_,1,
+        1,batch_sum_multiplier_.cpu_data(),mean_.cpu_data(),0,
+        num_by_chans_.mutable_cpu_data());
+    // 现在完成了sum(DE/DY)+y*sum(DE/DY.\cdot y)
+    caffe_cpu_gemm<Dtype>(CblasNoTrans,CblasNoTrans,num*channels_,spatial_dim,
+        1,1.,num_by_chans_.cpu_data(),spatial_sum_multiplier_.cpu_data(),1,
+        bottom_diff);
+
+    //top_diff - 1/m * (sum(DE/DY)+y*sum(DE/DY.\cdot y))
+    caffe_cpu_axpby(bottom[0]->count(),Dtype(1),top_diff,
+        Dtype(-1/(num*spatial_dim)),bottom_diff);
+
+    // 前面还有常数项 variance_+eps
+    caffe_div(temp_.count(),bottom_diff,temp_.cpu_data(),bottom_diff);
+ }
+ ```
+  backward的过程也是先求出通道的值，然后广播到整个feature_map,来回两次，然后调用axpby完成 top_diff - 1/m* (sum(top_diff)+y*sum(top_diff*y)))这里的y针对通道进行。
 
 
  >本文作者： 张峰
