@@ -7,7 +7,7 @@ categories: Caffe
 
 # Caffe Scale层解析
   前段时间做了caffe的batchnormalization层的解析，由于整体的BN层实现在Caffe是分段实现的，因此今天抽时间总结下Scale层次，也会后续两个层做合并做下铺垫。
-
+<!--more-->
 ## 基本公式梳理
   Scale层主要完成 $top = alpha*bottom+ beta$的过程，则层中主要有两个参数$alpha$与$beta$,
   求导会比较简单。
@@ -272,14 +272,6 @@ Caffe中的Scale层由于不仅仅作为BN的后续层，因此看着会比较�
 
 
 
-
-
-
-
-
-
-
-
  >本文作者： 张峰
- >本文链接：[http://www.enjoyai.site/2017/11/06/](http://www.enjoyai.site/2017/11/06/Caffe_BatchNormalization/ )
+ >本文链接：[http://www.enjoyai.site/2017/11/09](http://www.enjoyai.site/2017/11/09/Caffe_Scale%E5%B1%82%E8%A7%A3%E6%9E%90/ )
  >版权声明：本博客所有文章，均采用CC BY-NC-SA 3.0 许可协议。转载请注明出处！
