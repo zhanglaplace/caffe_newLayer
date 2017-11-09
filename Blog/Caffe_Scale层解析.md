@@ -194,18 +194,76 @@ void ScaleLayer<Dtype>::Forward_cpu(
       (scale_param&&this->param_propagate_down_[0])) {// 1个输入是判断alpha
       const Dtype* top_diff = top[0]->cpu_diff();
       Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-      const in_place = (bottom[0] == top[0]);// 需要做备份
-    }
+      const in_place = (bottom[0] == top[0]);
+      // 需要做备份 如果输入输出同名，需要注意用原来临时的temp
+      const Dtype* bottom_data =in_place?temp_.cpu_data():bottom[0]->cpu_data();
+      // BN中输入是NCHW,而alpha和beta仅仅针对C
+      const bool is_eltwise = (bottom[0]->count() == scale->count());//不相等的
+      Dtype* product= is_eltwise?scale_.mutable_cpu_diff():
+      (in_place?temp_.mutable_cpu_data():bottom[0]->mutable_cpu_diff());
+      caffe_mul(top[0]->count(),top_diff,bottom_data,product);
+      if (!is_eltwise) { // blobs_与输入对不上
+        Dtype* sum_result_ = NULL;
+        if (inner_dim_ == 1) {
+          //H*W == 1;
+          sum_result_ = product;
+        }
+        else if(sum_result_.count() == 1){ // 1*1*1*1
+          const Dtype* sum_mult_  = sum_multiplier_.cpu_data();
+          Dtype* scale_diff = scale->mutable_cpu_diff();
+          if (scale_param) { //true
+            Dtype result = caffe_cpu_dot(inner_dim,product,sum_mult);
+            *scale_diff += result; //H*W的相乘
+          }
+          else{
+            *scale_diff = caffe_cpu_dot(inner_dim_,product,sum_mult);
+          }
+        }
+        else{
+          const Dtype* sum_mult = sum_multiplier_.mutable_cpu_data();
+          sum_result = (outer_dim_ == 1)? // nc如果n==1就直接幅值C
+          scale_.mutable_cpu_diff():sum_result_.mutable_cpu_data();
 
+          //NC HW  * HW*1 = NC*1 HW全1
+          caffe_cpu_gemv<Dtype>(CblasNoTrans,sum_result.count(),inner_dim,
+          Dtype(1),product,sum_mult,Dtype(0),Dtype(0),sum_result);
+        }
 
-    if (propagate_down[0]) { //alpha?
-       const Dtype* top_diff = top[0]->cpu_diff();
-       const Dtype* scale_data = scale->cpu_data();
-
+        if (out_dim_ != 1) {
+           const Dtype* sum_mult  = sum_multiplier_.cpu_data();
+           Dtype* scale_diff = scale->mutable_cpu_diff();
+           if (scale_dim_ ==1) {
+             if (scale_param) { // C==1直接计算 NC*NC
+                Dtype result = caffe_cpu_dot(outer_dim_,sum_mult_,sum_result);
+                *scale_diff += result;
+             }
+             else{
+               *scale_diff =  caffe_cpu_dot(outer_dim_,sum_mult_,sum_result);
+             }
+           }
+           else{  //如果C != 1 需要gemv,(num * channels)^t * 1 *num*1
+             caffe_cpu_gemv<Dtype>(CblasTrans,outer_dim_,scale_dim,
+             Dtype(1),sum_result,sum_mult,Dtype(scale_param),scale_diff);
+           }
+        }
     }
   }
+  if (propagate_down[0]) { //x求导
+     const Dtype* top_diff = top[0]->cpu_diff();
+     const Dtype* scale_data = scale->cpu_data();
+     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
+     for (size_t n = 0; n < outer_dim_; n++) {
+       for (size_t d = 0; d < inner_dim_; d++) {
+          const Dtype factory = scale_data[d];
+          caffe_cpu_scale(inner_dim_,factory,top_diff,bottom_diff);
+          bottom_diff += inner_dim_;
+          top_diff += inner_dim_;
+       }
+     }
+  }
+}
   ```
-
+Caffe中的Scale层由于不仅仅作为BN的后续层，因此看着会比较绕，实际去上去掉很多if else 后会清晰很多
 
 
 
