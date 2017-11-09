@@ -72,6 +72,7 @@ namespace caffe {
 		variance_.Reshape(sz);
 		temp_.ReshapeLike(*bottom[0]);
 		x_norm_.ReshapeLike(*bottom[0]);
+		x_temp_top.ReshapeLike(*bottom[0]);
 		sz[0] = bottom[0]->shape(0);
 		batch_sum_multiplier_.Reshape(sz);
 
@@ -176,10 +177,8 @@ namespace caffe {
 		caffe_copy(x_norm_.count(), top_data,
 			x_norm_.mutable_cpu_data());
 
-
-
 		// 此处处理完成后需要做的就是后续的scale层需要做的了
-		bool scale_bias = this->layer_param_->batch_norm_plus_param().scale_bias();//
+		bool scale_bias = this->layer_param_.batch_norm_plus_param().scale_bias();//
 		if (scale_bias){ //没有scale和bias 则不要scaleLayer
 			//如果有scale_bias则需要做前向计算
 			// alpha* x_norm + bias 
@@ -195,28 +194,66 @@ namespace caffe {
 				}
 			}
 		}
+		caffe_copy(x_temp_top.count(), top_data,
+			x_temp_top.mutable_cpu_data());
 	}
 
 	template <typename Dtype>
 	void BatchNormPlusLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
 		const vector<bool>& propagate_down,
 		const vector<Blob<Dtype>*>& bottom) {
+		bool scale_bias = this->layer_param_.batch_norm_plus_param().scale_bias();//
 		const Dtype* top_diff;
+		int num = bottom[0]->shape(0);
+		int spatial_dim = bottom[0]->count() / (bottom[0]->shape(0)*channels_); 
 		if (bottom[0] != top[0]) {
 			top_diff = top[0]->cpu_diff();
 		}
 		else {
-			caffe_copy(x_norm_.count(), top[0]->cpu_diff(), x_norm_.mutable_cpu_diff());
+			caffe_copy(x_temp_top.count(), top[0]->cpu_diff(), x_temp_top.mutable_cpu_diff());
+			top_diff = x_temp_top.cpu_diff();
+		}
+		if (scale_bias){//需要计算alpha和beta
+			//scale
+			Dtype* scale_diff = this->blobs_[3]->mutable_cpu_diff();
+			//1 dE/dy * x_norm
+			caffe_mul<Dtype>(top[0]->count(), top_diff, x_norm_.cpu_data(), x_temp_top.mutable_cpu_data());
+
+			// 2.求sum 
+			caffe_cpu_gemv<Dtype>(CblasNoTrans, num*channels_, spatial_dim, 1.,
+				x_temp_top.cpu_data(), spatial_sum_multiplier_.cpu_data(), 0.,
+				num_by_chans_.mutable_cpu_data()); // NC* HW * HW(1)*1 = NC*1
+			caffe_cpu_gemv<Dtype>(CblasTrans, num, channels_, 1,
+				num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), 0, scale_diff);
+
+			// bias DE/dy 
+			Dtype* bias_diff = this->blobs_[4]->mutable_cpu_diff();
+			caffe_cpu_gemv<Dtype>(CblasNoTrans, num*channels_, spatial_dim, 1.,
+				top_diff, spatial_sum_multiplier_.cpu_data(), 0.,
+				num_by_chans_.mutable_cpu_data()); // NC* HW * HW(1)*1 = NC*1
+			caffe_cpu_gemv<Dtype>(CblasTrans, num, channels_, 1,
+				num_by_chans_.cpu_data(), batch_sum_multiplier_.cpu_data(), 0, bias_diff);
+
+			//计算dE/dx= dE/dy * scale; 在求sum
+			const Dtype* scale_data = this->blobs_[3]->cpu_data();
+			Dtype* x_norm_diff = x_norm_.mutable_cpu_diff();
+			for (int n = 0; n < num; n++){
+				for (int c = 0; c < channels_; c++){
+					Dtype factory = scale_data[c];
+					caffe_cpu_scale(spatial_dim, factory, top_diff, x_norm_diff);
+					top_diff += spatial_dim;
+					x_norm_diff += spatial_dim;
+				}
+			}
 			top_diff = x_norm_.cpu_diff();
 		}
+		
 		Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
 		if (use_global_stats_) {
 			caffe_div(temp_.count(), top_diff, temp_.cpu_data(), bottom_diff);
 			return;
 		}
 		const Dtype* top_data = x_norm_.cpu_data();
-		int num = bottom[0]->shape()[0];
-		int spatial_dim = bottom[0]->count() / (bottom[0]->shape(0)*channels_);
 		// if Y = (X-mean(X))/(sqrt(var(X)+eps)), then
 		//
 		// dE(Y)/dX =
