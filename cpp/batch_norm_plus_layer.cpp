@@ -72,7 +72,7 @@ namespace caffe {
 		variance_.Reshape(sz);
 		temp_.ReshapeLike(*bottom[0]);
 		x_norm_.ReshapeLike(*bottom[0]);
-		x_temp_top.ReshapeLike(*bottom[0]);
+		x_temp_top.ReshapeLike(*bottom[0]);// add for temp top_data
 		sz[0] = bottom[0]->shape(0);
 		batch_sum_multiplier_.Reshape(sz);
 
