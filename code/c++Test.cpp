@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include <fstream>
 #include <vector>
+#include <iomanip>
 #include <map>
 using namespace std;
 
@@ -26,37 +27,21 @@ void SplitString(const std::string& s, std::vector<std::string>& v, const std::s
 
 
 int main(void){
-
-	map<string, int> IntHash;
-	IntHash["Neutral"] = 0;
-	IntHash["Happiness"] = 1;
-	IntHash["Sadness"] = 2;
-	IntHash["Surprise"] = 3;
-	IntHash["Fear"] = 4;
-	IntHash["Disgust"] = 5;
-	IntHash["Anger"] = 6;
-  ifstream fin("D:\\Deeplearning\\Caffe-ssd-Microsft\\caffe\\face_examples\\SSD\\training.txt",ios_base::in);
-  ofstream fout("D:\\Deeplearning\\Caffe-ssd-Microsft\\caffe\\face_examples\\SSD\\train_list.txt",ios_base::out);
-	ofstream fouv("D:\\Deeplearning\\Caffe-ssd-Microsft\\caffe\\face_examples\\SSD\\validate_list.txt",ios_base::out);
-	const string src_path = "E:/deeplearning/caffe/data/VOC0712/JPEGImages/";
+  ifstream fin("D:\\Deeplearning\\Caffe\\caffe\\face_examples\\mtcnn_faceRecognition\\matlab\\sphereface_flip_cos_fliplayer.txt",ios_base::in);
+  ofstream fout("D:\\Deeplearning\\Caffe\\caffe\\face_examples\\mtcnn_faceRecognition\\matlab\\sphereface_flip_cos_fliplayer_final.txt",ios_base::out);
   string lines;
   int count = 0;
+	cout<<fixed<<setprecision(6)<<0.2<<endl;
   while(getline(fin,lines)){
     vector<string>vc;
     SplitString(lines,vc," ");
     count++;
-    if (count % 1000 == 0) {
-      cout<<count<<endl;
-    }
-		if (count < 250000) {
-			fout << src_path + vc[0]<<" "<<IntHash[vc[1]]<<endl;
-		}
-		else{
-			fouv << src_path + vc[0]<<" "<<IntHash[vc[1]]<<endl;
+		fout<<vc[0]<<" "<<setprecision(6)<<vc[1]<<endl;
+		if (count %100 == 0) {
+			cout<<count<<endl;
 		}
   }
   fin.close();
-  fout.close();
-	fouv.close();
+	fout.close();
   return 0;
 }
