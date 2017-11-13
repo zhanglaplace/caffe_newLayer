@@ -30,6 +30,14 @@ BEGIN_MESSAGE_MAP(CfaceAnalysisDoc, CDocument)
 	ON_COMMAND(ID_ELEMENT_RECTANGLE, &CfaceAnalysisDoc::OnElementRectangle)
 	ON_COMMAND(ID_ELEMENT_CIRCLE, &CfaceAnalysisDoc::OnElementCircle)
 	ON_COMMAND(ID_ELEMENT_CURVE, &CfaceAnalysisDoc::OnElementCurve)
+	ON_UPDATE_COMMAND_UI(ID_COLOR_BLACK, &CfaceAnalysisDoc::OnUpdateColorBlack)
+	ON_UPDATE_COMMAND_UI(ID_COLOR_RED, &CfaceAnalysisDoc::OnUpdateColorRed)
+	ON_UPDATE_COMMAND_UI(ID_COLOR_GREEN, &CfaceAnalysisDoc::OnUpdateColorGreen)
+	ON_UPDATE_COMMAND_UI(ID_COLOR_BLUE, &CfaceAnalysisDoc::OnUpdateColorBlue)
+	ON_UPDATE_COMMAND_UI(ID_ELEMENT_LINE, &CfaceAnalysisDoc::OnUpdateElementLine)
+	ON_UPDATE_COMMAND_UI(ID_ELEMENT_RECTANGLE, &CfaceAnalysisDoc::OnUpdateElementRectangle)
+	ON_UPDATE_COMMAND_UI(ID_ELEMENT_CIRCLE, &CfaceAnalysisDoc::OnUpdateElementCircle)
+	ON_UPDATE_COMMAND_UI(ID_ELEMENT_CURVE, &CfaceAnalysisDoc::OnUpdateElementCurve)
 END_MESSAGE_MAP()
 
 
@@ -148,46 +156,111 @@ void CfaceAnalysisDoc::Dump(CDumpContext& dc) const
 void CfaceAnalysisDoc::OnColorBlack()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Color = ElementColor::BLACK; // 设置画笔颜色为黑色
 }
 
 
 void CfaceAnalysisDoc::OnColorRed()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Color = ElementColor::RED; // 设置画笔颜色为红色
 }
 
 
 void CfaceAnalysisDoc::OnColorGreen()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Color = ElementColor::GREEN; // 设置画笔颜色为绿色
 }
 
 
 void CfaceAnalysisDoc::OnColorBlue()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Color = ElementColor::BLUE; // 设置画笔颜色为蓝色
 }
 
 
 void CfaceAnalysisDoc::OnElementLine()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Element = ElementType::LINE; // 设置画笔形状为线型
 }
 
 
 void CfaceAnalysisDoc::OnElementRectangle()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Element = ElementType::RECTANGLE; //设置画笔形状为矩形
 }
 
 
 void CfaceAnalysisDoc::OnElementCircle()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Element = ElementType::CIRCLE; //设置画笔形状为圆形
 }
 
 
 void CfaceAnalysisDoc::OnElementCurve()
 {
 	// TODO:  在此添加命令处理程序代码
+	m_Element = ElementType::CURVE; //设置画笔形状为曲线
+}
+
+
+// 只用作更新处理程序的MFC类,仅适用于工具栏和菜单栏
+void CfaceAnalysisDoc::OnUpdateColorBlack(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Color == ElementColor::BLACK);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateColorRed(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Color == ElementColor::RED);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateColorGreen(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Color == ElementColor::GREEN);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateColorBlue(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Color == ElementColor::BLUE);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateElementLine(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Element == ElementType::LINE);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateElementRectangle(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Element == ElementType::RECTANGLE);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateElementCircle(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Element == ElementType::CIRCLE);
+}
+
+
+void CfaceAnalysisDoc::OnUpdateElementCurve(CCmdUI *pCmdUI)
+{
+	// TODO:  在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(m_Element == ElementType::CURVE);
 }

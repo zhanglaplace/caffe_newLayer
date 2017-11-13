@@ -60,6 +60,15 @@ public:
 	ElementType GetElementType()const{ return m_Element; }
 	ElementColor GetElementColor() const{ return m_Color; }
 protected:
-	ElementType m_Element;
-	ElementColor m_Color;
+	ElementType m_Element{ElementType::LINE}; // 初始化形状 
+	ElementColor m_Color{ElementColor::BLACK}; // 初始化颜色
+public:
+	afx_msg void OnUpdateColorBlack(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateColorRed(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateColorGreen(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateColorBlue(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateElementLine(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateElementRectangle(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateElementCircle(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateElementCurve(CCmdUI *pCmdUI);
 };
