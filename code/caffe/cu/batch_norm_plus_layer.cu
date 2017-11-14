@@ -3,7 +3,7 @@
 
 #include "caffe/layers/batch_norm_plus_layer.hpp"
 #include "caffe/util/math_functions.hpp"
-
+#include <iostream>
 namespace caffe {
 
 	template <typename Dtype>
@@ -104,27 +104,14 @@ namespace caffe {
 		// add scale layer by zhangfeng
 		bool scale_bias = this->layer_param_.batch_norm_plus_param().scale_bias();
 		if (scale_bias){
-			const Dtype* scale_data = this->blobs_[3]->gpu_data();
+            const Dtype* scale_data = this->blobs_[3]->gpu_data();
 			const Dtype* bias_data = this->blobs_[4]->gpu_data();
 			const int count = top[0]->count();
 			BatchNormPlusForward<Dtype> << <CAFFE_GET_BLOCKS(count),
 				CAFFE_CUDA_NUM_THREADS >> >(
 				count, top_data,scale_data, bias_data, channels_, spatial_dim, top_data);
-			CUDA_POST_KERNEL_CHECK;
-			/*
-			for (int n = 0; n < num; n++){
-			for (int c = 0; c < channels_; c++){
-			const Dtype factory = scale_data[c];
-			const Dtype bias = bias_data[c];
-			caffe_gpu_scale(spatial_dim, factory, top_data, top_data);
-			caffe_add_scalar(spatial_dim, bias, top_data);
-			top_data += spatial_dim;
-			}
-			}
-			*/
 		}
-		caffe_copy(x_temp_top.count(), top_data,
-			x_temp_top.mutable_gpu_data());
+		caffe_copy(x_temp_top.count(), top_data, x_temp_top.mutable_gpu_data());
 
 	}
 
@@ -160,10 +147,10 @@ namespace caffe {
 		//scale 
 		bool scale_bias = this->layer_param_.batch_norm_plus_param().scale_bias();//
 		if (scale_bias){//需要计算alpha和beta
-			//scale
+            //scale
 			Dtype* scale_diff = this->blobs_[3]->mutable_gpu_diff();
 			//1 dE/dy * x_norm
-			caffe_mul<Dtype>(top[0]->count(), top_diff, x_norm_.gpu_data(), x_temp_top.mutable_gpu_data());
+			caffe_gpu_mul<Dtype>(top[0]->count(), top_diff, x_norm_.gpu_data(), x_temp_top.mutable_gpu_data());
 
 			// 2.求sum 
 			caffe_gpu_gemv<Dtype>(CblasNoTrans, num*channels_, spatial_dim, 1.,

@@ -5,6 +5,8 @@
 #include "caffe/util/math_functions.hpp"
 #include "caffe/filler.hpp"
 
+#include <iostream>
+
 namespace caffe {
 	template <typename Dtype>
 	void BatchNormPlusLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
@@ -23,7 +25,8 @@ namespace caffe {
 			LOG(INFO) << "Skipping parameter initialization";
 		}
 		else {
-			this->blobs_.resize(3);
+            this->blobs_.resize(3);
+
 			vector<int> sz;
 			sz.push_back(channels_);
 			this->blobs_[0].reset(new Blob<Dtype>(sz));
@@ -34,9 +37,9 @@ namespace caffe {
 				caffe_set(this->blobs_[i]->count(), Dtype(0),
 					this->blobs_[i]->mutable_cpu_data());
 			}
-			if (param.has_scale_bias()){ // 增加scale层的alpha和beta
-				this->blobs_.resize(5);
-				sz[0] = channels_;
+			if (param.scale_bias()){ // 增加scale层的alpha和beta
+                this->blobs_.resize(5);
+                sz[0] = channels_;
 				this->blobs_[3].reset(new Blob<Dtype>(sz)); // alpha C
 				this->blobs_[4].reset(new Blob<Dtype>(sz)); // beta C
 
@@ -49,11 +52,11 @@ namespace caffe {
 				}
 
 				if (param.has_bias_filler()){
-					shared_ptr<Filler<Dtype>> bias_filler(GetFiller<Dtype>(param.bias_filler()));
+					shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(param.bias_filler()));
 					bias_filler->Fill(this->blobs_[4].get());
 				}
 				else{
-					caffe_set(this->blobs_[4]->count(), Dtype(1), this->blobs_[4]->mutable_cpu_data());
+					caffe_set(this->blobs_[4]->count(), Dtype(0), this->blobs_[4]->mutable_cpu_data());
 				}
 			}
 		}
