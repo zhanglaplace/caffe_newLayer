@@ -21,28 +21,31 @@
     <ClInclude Include="faceAnalysis.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="faceAnalysisDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MainFrm.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="faceAnalysisDoc.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="faceAnalysisView.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ElementType.h">
+    <ClInclude Include="CvvImage.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ElementColor.h">
+    <ClInclude Include="register.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="processThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="faceDetect.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,16 +53,22 @@
     <ClCompile Include="faceAnalysis.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="faceAnalysisDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MainFrm.cpp">
+    <ClCompile Include="CvvImage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="faceAnalysisDoc.cpp">
+    <ClCompile Include="thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="faceAnalysisView.cpp">
+    <ClCompile Include="processThread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="faceDetect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,13 +83,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\faceAnalysisDoc.ico">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="res\faceAnalysis.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\Toolbar.bmp">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

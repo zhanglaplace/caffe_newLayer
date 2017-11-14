@@ -28,31 +28,13 @@ res\faceAnalysis.ico
 res\faceAnalysis.rc2
     此文件包含不在 Microsoft Visual C++ 中进行编辑的资源。您应该将不可由资源编辑器编辑的所有资源放在此文件中。
 
+
 /////////////////////////////////////////////////////////////////////////////
 
-对于主框架窗口：
-    该项目包含一个标准的 MFC 接口。
+应用程序向导创建一个对话框类：
 
-MainFrm.h, MainFrm.cpp
-    这些文件中包含框架类 CMainFrame，该类派生自
-    CFrameWnd 并控制所有 SDI 框架功能。
-
-res\Toolbar.bmp
-    此位图文件用于为工具栏创建平铺图像。
-    初始工具栏和状态栏在 CMainFrame 类中构造。使用资源编辑器编辑此工具栏位图，并更新 faceAnalysis.rc 中的 IDR_MAINFRAME TOOLBAR 数组以添加工具栏按钮。
-/////////////////////////////////////////////////////////////////////////////
-
-应用程序向导创建一种文档类型和一个视图：
-
-faceAnalysisDoc.h、faceAnalysisDoc.cpp - 文档
-    这些文件包含 CfaceAnalysisDoc 类。编辑这些文件以添加特殊文档数据并实现文件保存和加载（通过 CfaceAnalysisDoc::Serialize）。
-
-faceAnalysisView.h、faceAnalysisView.cpp - 文档视图
-    这些文件包含 CfaceAnalysisView 类。
-    CfaceAnalysisView 对象用于查看 CfaceAnalysisDoc 对象。
-
-
-
+faceAnalysisDlg.h、faceAnalysisDlg.cpp - 对话框
+    这些文件包含 CfaceAnalysisDlg 类。此类定义应用程序的主对话框的行为。对话框模板包含在 faceAnalysis.rc 中，该文件可以在 Microsoft Visual C++ 中编辑。
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -60,9 +42,6 @@ faceAnalysisView.h、faceAnalysisView.cpp - 文档视图
 
 ActiveX 控件
     该应用程序包含对使用 ActiveX 控件的支持。
-
-打印和打印预览支持
-    应用程序向导通过从 MFC 库调用 CView 类中的成员函数生成代码，来处理打印、打印设置和打印预览命令。
 
 /////////////////////////////////////////////////////////////////////////////
 
