@@ -1,6 +1,18 @@
 #include "stdafx.h"
 #include "faceRecognition.h"
 
+
+
+void trim(std::string &s)
+{
+	if (s.empty())
+	{
+		return ;
+	}
+	s.erase(0, s.find_first_not_of(" "));
+	s.erase(s.find_last_not_of(" ") + 1);
+}
+
 /******************************************************
 // FaceRecognition
 // 构造函数,加载model 与人脸特征
@@ -148,8 +160,18 @@ void FaceRecognition::loadTotalFacesFeatureFromFile(char* fileName, vector<vecto
 // 时间:2015.11.15
 // 备注:
 /*******************************************************/
-void FaceRecognition::getNameFromId(char* name, int id){
+const char* FaceRecognition::getNameFromId(int id){
 
+	map<string, int>::iterator it = totalName_.begin();
+	while (it != totalName_.end()){
+		if (it->second == id){
+			return it->first.c_str();
+		}
+	}
+	return NULL;
+
+
+	/* 尽量少用文本交互
 	FILE* idFile = 0;
 	idFile = fopen("./db/fileNameID.txt", "r");
 
@@ -170,6 +192,7 @@ void FaceRecognition::getNameFromId(char* name, int id){
 		}
 
 	} while (fileResult != EOF);
+	*/
 }
 
 /******************************************************
@@ -179,9 +202,11 @@ void FaceRecognition::getNameFromId(char* name, int id){
 // 时间:2015.11.15
 // 备注:
 /*******************************************************/
-void FaceRecognition::updateTotalFeature(){
+void FaceRecognition::updateTotalFeatureName(string sName){
 
-	totalFeature_.push_back(feature_);
+	totalFeature_.push_back(feature_); // 库特征更新
+	total_num_ = total_num_ + 1; 
+	totalName_.insert(make_pair(sName, total_num_));
 }
 
 
@@ -193,6 +218,7 @@ void FaceRecognition::updateTotalFeature(){
 // 备注:
 /*******************************************************/
 int FaceRecognition::getMaxRecordNum(){
+	/*
 	int maxNum = 0;
 	FILE* fin = fopen("./db/fileNameID.txt", "r");
 	if (!fin) // 无文件
@@ -207,7 +233,8 @@ int FaceRecognition::getMaxRecordNum(){
 			maxNum = num;
 	} while (returnVal != EOF);
 	fclose(fin);
-	return maxNum;
+	*/
+	return total_num_;
 }
 
 
@@ -237,11 +264,10 @@ void FaceRecognition::saveFeaturesToFile(int id, char* isim){
 // 函数名:loadTotalFacesNameFromFile
 // 说明:从文件中加在已有数据库的名字
 // 作者:张峰
-// 时间:
+// 时间:2017.11.14
 // 备注:
 /*******************************************************/
 void FaceRecognition::loadTotalFacesNameFromFile(char* fileName, std::map<std::string, int>& sName){
-
 
 	// 清空
 	sName.swap(map<string, int>());
@@ -258,7 +284,10 @@ void FaceRecognition::loadTotalFacesNameFromFile(char* fileName, std::map<std::s
 		}
 	}
 	fin.close();
+	total_num_ = sName.size();
 }
+
+
 
 /******************************************************
 // 函数名:checkName
@@ -267,10 +296,16 @@ void FaceRecognition::loadTotalFacesNameFromFile(char* fileName, std::map<std::s
 // 时间:
 // 备注:已经存在返回 1 ，为空返回-1 ，正确返回0
 /*******************************************************/
-int FaceRecognition::checkName(char* name,int length){
-	if (name == NULL)
-	{
-
+int FaceRecognition::checkName(string sName){
+	string tmp = sName;
+	trim(tmp);
+	if (tmp.empty()){ //不符合常理的字符串
+		return -1;
 	}
-
+	else if (totalName_.find(tmp) != totalName_.end()){ // 已经存在于数据库
+		return 1;
+	}
+	else{
+		return 0; // 有效的
+	}
 }

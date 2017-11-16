@@ -317,15 +317,21 @@ void CfaceAttributeDlg::OnBnClickedRegister()
 		strFileName = strImgFilename.GetBuffer(strImgFilename.GetLength() + 1);
 		strImgFilename.ReleaseBuffer();
 #endif
-		int bCheck = m_fr->checkName(strFileName,strlen(strFileName));
-
-		int recordNum = m_fr->getMaxRecordNum();
-		m_fr->getLastLayerFeaturesFlip(m_captureImg, recordNum + 1);
-
-
-
-		m_fr->saveFeaturesToFile(recordNum + 1, strFileName);
-		m_fr->updateTotalFeature();
+		int bCheck = m_fr->checkName(strFileName);
+		if (bCheck == -1){
+			AfxMessageBox(_T("请输入有效的人物姓名"));
+			return ;
+		}
+		else if (bCheck == 1){
+			AfxMessageBox(_T("该姓名已经存在于数据库中"));
+			return;
+		}
+		else{
+			int recordNum = m_fr->getMaxRecordNum();
+			m_fr->getLastLayerFeaturesFlip(m_captureImg, recordNum + 1);
+			m_fr->saveFeaturesToFile(recordNum + 1, strFileName);
+			m_fr->updateTotalFeatureName(strFileName);
+		}
 	}
 
 }
@@ -364,12 +370,12 @@ void CfaceAttributeDlg::OnBnClickedRecognition()
 
 	m_fr->getLastLayerFeaturesFlip(m_captureImg, -1);
 	int id = m_fr->compareTwoVectors();
-	char resultName[50];
+	const char* resultName = NULL;
 	if (id == -1){
 		m_resultName = _T("不在数据库");
 	}
 	else{
-		m_fr->getNameFromId(resultName, id);
+		resultName = m_fr->getNameFromId(id);
 		m_resultName = resultName;
 	}
 

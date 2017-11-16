@@ -26,9 +26,9 @@ public:
 	void saveFeaturesToFile(int id, char* name); // 保存特征到文件
 	void loadTotalFacesNameFromFile(char* fileName, std::map<string, int>&);
 	void loadTotalFacesFeatureFromFile(char* fileName, vector<vector<float> >&);// 加载特征
-	void updateTotalFeature(); // 更新特征库特征
-	void getNameFromId(char* name, int id); //根据id获取当前人物姓名
-	int  checkName(char* name,int length);
+	void updateTotalFeatureName(std::string sName); // 更新特征库特征
+	const char* getNameFromId(int id); //根据id获取当前人物姓名
+	int  checkName(std::string name);
 	
 
 private:
@@ -40,6 +40,7 @@ public:
 	boost::shared_ptr<Net<float> > _net;
 	vector<vector<float> >totalFeature_; // 库特征
 	map<string, int> totalName_;
+	int total_num_;
 };
 
 
