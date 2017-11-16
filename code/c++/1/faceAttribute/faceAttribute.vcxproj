@@ -161,7 +161,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLOG_NO_ABBREVIATED_SEVERITIES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;GLOG_NO_ABBREVIATED_SEVERITIES;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v7.5\include;..\..\3rdparty\Release\include</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zm129 %(AdditionalOptions)</AdditionalOptions>
@@ -191,7 +191,10 @@
     <ClInclude Include="CvvImage.h" />
     <ClInclude Include="faceAttribute.h" />
     <ClInclude Include="faceAttributeDlg.h" />
+    <ClInclude Include="faceDetect.h" />
+    <ClInclude Include="faceRecognition.h" />
     <ClInclude Include="register.h" />
+    <ClInclude Include="RegisterBox.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -200,6 +203,9 @@
     <ClCompile Include="CvvImage.cpp" />
     <ClCompile Include="faceAttribute.cpp" />
     <ClCompile Include="faceAttributeDlg.cpp" />
+    <ClCompile Include="faceDetect.cpp" />
+    <ClCompile Include="faceRecognition.cpp" />
+    <ClCompile Include="RegisterBox.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

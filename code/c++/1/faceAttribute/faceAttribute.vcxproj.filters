@@ -39,6 +39,15 @@
     <ClInclude Include="register.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="faceDetect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="faceRecognition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="faceAttribute.cpp">
@@ -51,6 +60,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CvvImage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="faceDetect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="faceRecognition.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterBox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
