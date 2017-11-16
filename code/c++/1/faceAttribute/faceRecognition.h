@@ -20,6 +20,7 @@ public:
 	int compareTwoVectors(); // 默认比较当前特征和库特征
 	float getL2length(const vector<float>& vec);
 	void getLastLayerFeaturesFlip(const cv::Mat& _img, int k);
+	vector<float> getLastLayerFeaturesFlip(const cv::Mat& _img);
 	float getSimilarity(const std::vector<float>& lhs, const std::vector<float>& rhs);
 	////获取最大现在的注册人数
 	int  getMaxRecordNum(); // 当前已有的注册人数

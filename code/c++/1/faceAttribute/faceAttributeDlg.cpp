@@ -6,6 +6,7 @@
 #include "faceAttribute.h"
 #include "faceAttributeDlg.h"
 #include "afxdialogex.h"
+#include "Compare.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -125,6 +126,7 @@ BEGIN_MESSAGE_MAP(CfaceAttributeDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_REGISTER, &CfaceAttributeDlg::OnBnClickedRegister)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_RECOGNITION, &CfaceAttributeDlg::OnBnClickedRecognition)
+	ON_BN_CLICKED(IDC_BTN_COMPARE, &CfaceAttributeDlg::OnBnClickedBtnCompare)
 END_MESSAGE_MAP()
 
 
@@ -380,4 +382,15 @@ void CfaceAttributeDlg::OnBnClickedRecognition()
 	}
 
 	UpdateData(false);
+}
+
+
+
+
+void CfaceAttributeDlg::OnBnClickedBtnCompare()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	CCompare *pDlgCompare = new CCompare;
+	pDlgCompare->Create(IDD_COMPARE_DIALOG, this);
+	pDlgCompare->ShowWindow(SW_SHOW);
 }

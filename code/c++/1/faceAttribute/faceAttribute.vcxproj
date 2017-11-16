@@ -188,6 +188,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Compare.h" />
     <ClInclude Include="CvvImage.h" />
     <ClInclude Include="faceAttribute.h" />
     <ClInclude Include="faceAttributeDlg.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Compare.cpp" />
     <ClCompile Include="CvvImage.cpp" />
     <ClCompile Include="faceAttribute.cpp" />
     <ClCompile Include="faceAttributeDlg.cpp" />

@@ -124,6 +124,36 @@ void FaceRecognition::getLastLayerFeaturesFlip(const cv::Mat& _img,int k){
 	feature_.insert(feature_.begin(), k);
 }
 
+/******************************************************
+// 函数名:getLastLayerFeaturesFlip
+// 说明: 提取图像的CNN特征
+// 作者:张峰
+// 时间:2017.11.15
+// 备注: 重载
+/*******************************************************/
+vector<float>FaceRecognition::getLastLayerFeaturesFlip(const cv::Mat& _img){
+	cv::Mat img = _img.clone();
+	img.convertTo(img, CV_32FC3);
+	resize(img, img, cvSize(96, 112));
+	Blob<float>* inputBlob = _net->input_blobs()[0];
+	int width = inputBlob->width();
+	int height = inputBlob->height();
+	int spatial_dim = width*height;
+	img = (img - 127.5)*0.0078125; //减去均值后再归一
+	float* data = inputBlob->mutable_cpu_data();
+	assert(img.channels() == 3);
+	cv::Vec3f* img_data = (cv::Vec3f*)img.data;
+	for (int k = 0; k < spatial_dim; ++k){
+		data[k] = (float)img_data[k][0];
+		data[k + spatial_dim] = (float)img_data[k][1];
+		data[k + 2 * spatial_dim] = (float)img_data[k][2];
+	}
+	Blob<float>* outputBlob = _net->Forward()[0];
+	const float* begin = outputBlob->cpu_data();
+	const float* end = begin + outputBlob->num()*outputBlob->channels();
+	return vector<float>(begin, end);
+}
+
 
 /******************************************************
 // 函数名:loadTotalFacesFeatureFromFile

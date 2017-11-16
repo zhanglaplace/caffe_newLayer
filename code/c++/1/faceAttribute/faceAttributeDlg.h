@@ -67,4 +67,5 @@ public:
 	afx_msg void OnClose();
 	afx_msg void OnBnClickedRecognition();
 	CString m_resultName;
+	afx_msg void OnBnClickedBtnCompare();
 };

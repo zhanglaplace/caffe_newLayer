@@ -48,6 +48,9 @@
     <ClInclude Include="RegisterBox.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Compare.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="faceAttribute.cpp">
@@ -69,6 +72,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RegisterBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Compare.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
