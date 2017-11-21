@@ -1,0 +1,7 @@
+MTCNN-A
+MinSize 15 3937 ---- 3929 
+MinSize 40 3937 --- 3929
+
+Dlib
+    检测效果不如MTCNN-A
+	
