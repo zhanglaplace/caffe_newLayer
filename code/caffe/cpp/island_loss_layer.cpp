@@ -20,6 +20,7 @@ namespace caffe {
 		// and axis == 1, N inner products with dimension CHW are performed.
 		K_ = bottom[0]->count(axis);
 		// Check if we need to set up the weights
+		// Check if we need to set up the weights
 		if (this->blobs_.size() > 0) {
 			LOG(INFO) << "Skipping parameter initialization";
 		}
@@ -114,7 +115,7 @@ namespace caffe {
 		}
 		*/
 		loss1  = lambda_* loss1 /N_/(N_-1) ;
-		Dtype loss = loss / M_ / Dtype(2);
+		Dtype loss = dot / M_ / Dtype(2);
 		top[0]->mutable_cpu_data()[0] = loss + loss1;
 	}
 
