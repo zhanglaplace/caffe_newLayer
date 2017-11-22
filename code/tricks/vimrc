@@ -1,0 +1,442 @@
+" Environment {
+    " Windows or Linux {
+        let g:iswindows = 0
+        let g:islinux = 0
+        if(has("win32") || has("win64"))
+            let g:iswindows = 1
+        else
+            let g:islinux = 1
+        endif
+    " }
+
+    " vim or gvim {
+        if has("gui_running")
+            let g:isGUI = 1
+        else
+            let g:isGUI = 0
+        endif
+    " }
+" }
+
+
+" Basics {
+    set nocompatible
+    let mapleader = ','
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC   " Make vimrc work immediately
+    autocmd BufEnter * silent! lcd %:p:h            " Set working directory to the current file
+" }
+
+
+" General {
+    set background=dark             " Assume a dark background
+
+    " Allow to trigger background
+    function! ToggleBG()
+        let s:tbg = &background
+        " Inversion
+        if s:tbg == "dark"
+            set background=light
+        else
+            set background=dark
+        endif
+    endfunction
+    noremap <leader>bg :call ToggleBG()<CR>
+
+    syntax on
+    set mouse=a                     " Automatically enable mouse usage
+    set mousehide                   " Hide the mouse cursor while typing
+
+    if has('clipboard')
+        if has('unnamedplus')       " When possible use + register for copy-paste
+            set clipboard=unnamed,unnamedplus
+        else                        " On mac and Windows, use * register for copy-paste
+            set clipboard=unnamed
+        endif
+    endif
+
+    " Instead of reverting the cursor to the last position in the buffer, we
+    " set it to the first line when editing a git commit message
+    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+" }
+
+
+" Vim UI {
+    set tabpagemax=15               " Only show 15 tabs
+    set showmode                    " Display the current mode
+
+    set cursorline                  " Highlight current line
+    " set cursorcolumn                " Highlight current column
+    highlight clear SignColumn      " SignColumn should match background
+    highlight clear LineNr          " Current line number row will have same background color in relative mode
+
+    set ttyfast
+    set ruler
+    set isk+=-
+    set backspace=indent,eol,start  " Backspace for dummies
+    set linespace=0                 " No extra spaces between rows
+    set number                      " Line numbers on
+    set numberwidth=4
+    set showmatch                   " Show matching brackets/parenthesis
+    set incsearch                   " Find as you type search
+    set hlsearch                    " Highlight search terms
+    set noswapfile                  " Ignore capital and lower case
+    set winminheight=0              " Windows can be 0 line high
+    set ignorecase                  " Case insensitive search
+    set smartcase                   " Case sensitive when uc present
+    set wildmenu                    " Show list instead of just completing
+    set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
+    set whichwrap=b,s,h,l,<,>,[,]   " Backspace and cursor keys wrap too
+    set scrolljump=5                " Lines to scroll when cursor leaves screen
+    set scrolloff=3                 " Minimum lines to keep above and below cursor
+    set foldenable                  " Auto fold code
+    set foldlevelstart=99
+    set foldlevel=99
+    set foldmethod=syntax
+    set foldcolumn=1
+    set list
+    set listchars=tab:›\ ,trail:•,extends:#,nbsp:. " Highlight problematic whitespace
+    set laststatus=2
+    set nobackup
+    set nowritebackup
+    set hidden                      " Allow buffer switching without saving
+    set fencs=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+    set fenc=utf-8
+    autocmd VimEnter * set nospell  " No spell checking
+
+    if (g:islinux && g:isGUI)
+        set guioptions-=m
+        set guioptions-=T
+        set guioptions-=r
+        set guioptions-=L
+        set lines=30 columns=90
+        " highlight MyCursor gui=reverse guifg=NONE guibg=NONE
+        set guicursor=n-v-c:ver10
+        set guifont=Andale\ Mono\ Regular\ 13,Menlo\ Regular\ 12,Consolas\ Regular\ 13,Courier\ New\ Regular\ 15
+        " set guifont=DejaVu\ Sans\ mono\ 13
+    else
+        set t_Co=256                " Enable 256 colors to stop the CSApprox warning and make xterm vim shine
+    endif
+" }
+
+
+" Formatting {
+    set nowrap                      " Do not wrap long lines
+    set autoindent                  " Indent at the same level of the previous line
+    set expandtab                   " Tabs are spaces, not tabs
+    set shiftwidth=4                " Use indents of 4 spaces
+    set tabstop=4                   " An indentation every four columns
+    set softtabstop=4               " Let backspace delete indent
+    set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
+    set splitright                  " Puts new vsplit windows to the right of the current
+    set splitbelow                  " Puts new split windows to the bottom of the current
+" }
+
+
+" Key (re)Mappings {
+    imap jj <esc>
+
+    " Split windows
+    nmap <leader>vv <c-w>v
+    nmap <leader>v<space> <c-w>s
+    nmap <leader>vc <c-w>c
+    nmap <leader><space> <c-w>w
+
+    " Tab switch
+    nmap <leader>t gt
+    nmap <leader>r gT
+
+    " Wrapped lines goes down/up to next row, rather than next line in file.
+    noremap j gj
+    noremap k gk
+
+    nmap <leader>q :q<CR>
+    nmap <leader><leader>q :q!<CR>
+    nmap <leader>w :w<cr>
+    nmap <leader><leader>w :wq!<CR>
+    " For when you forget to sudo.. Really Write the file.
+    cmap w!! w !sudo tee % >/dev/null
+
+    " Select all and Cancel
+    map <c-a> ggVG$
+    map! <c-a> <esc>ggVG$
+
+    " Modify regular expression
+    nmap / /\v
+    vmap / /\v
+
+    " Search
+    nmap <leader>s :1,%s///cg<left><left><left><left>
+
+    " Cancel search highlight
+    nmap <leader>n :noh<cr>
+
+    " Copy and paste in system clipboard
+    nmap <leader>y "+y
+    vmap <leader>y "+y
+    nmap <leader>p "+p
+    vmap <leader>p "+p
+
+    " Tabnew
+    nmap <leader>tb :tabnew<cr>
+
+    " No confirm, not whole-word
+    nnoremap <Leader>R :call Replace(0, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+    " No confirm, whole-word
+    nnoremap <Leader>rw :call Replace(0, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+    " Confirm, not whole-word
+    nnoremap <Leader>rc :call Replace(1, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+    " Confirm, whole-word
+    nnoremap <Leader>rcw :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+    nnoremap <Leader>rwc :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+
+    " Set :Man command
+    source $VIMRUNTIME/ftplugin/man.vim
+    nmap <Leader>man :Man 3 <cword><CR>
+" }
+
+
+" Vundle Settings {
+    set rtp+=~/.vim/bundle/Vundle.vim
+    call vundle#rc()
+    " let Vundle manage Vundle
+    " required!
+    Bundle 'gmarik/vundle'
+
+    " My Bundles here:
+    Bundle 'mattn/emmet-vim'
+    Bundle 'Auto-Pairs'
+    Bundle 'matchit.zip'
+
+    Bundle 'trailing-whitespace'
+        map <leader>d<space> :FixWhitespace<cr>	    " Delete space at the end of a line
+
+    Bundle 'cakebaker/scss-syntax.vim'
+    Bundle 'pangloss/vim-javascript'
+    Bundle 'othree/html5.vim'
+    Bundle 'beiyuu/vim-bundle-mako'
+    Bundle 'wavded/vim-stylus'
+    Bundle 'mxw/vim-jsx'
+    Bundle 'Valloric/MatchTagAlways'
+    Bundle 'octol/vim-cpp-enhanced-highlight'
+
+    Bundle 'kshenoy/vim-signature'
+        let g:SignaturePeriodicRefresh = 0
+
+    Bundle 'bling/vim-airline'
+
+    Bundle 'dyng/ctrlsf.vim'
+        nmap <Leader>ff <Plug>CtrlSFPrompt
+
+    Bundle 'junegunn/vim-easy-align'
+        vmap <Enter> <Plug>(EasyAlign)
+        nmap <Leader>a <Plug>(EasyAlign)
+
+    Bundle 'Solarized'
+        " colorscheme solarized
+        colorscheme tango2
+        " colorscheme tango_desert
+        " colorscheme rainbow_breeze
+        " colorscheme no_quarter
+        " colorscheme blackdust
+
+    Bundle 'nathanaelkane/vim-indent-guides'
+        let g:indent_guides_auto_colors = 0
+        let g:indent_guides_enable_on_vim_startup=1
+        let g:indent_guides_start_level=2
+        let g:indent_guides_guide_size=1
+        nmap <Leader>i <Plug>IndentGuidesToggle
+
+    " Switching between companion files
+    Bundle 'derekwyatt/vim-fswitch'
+    nmap <silent> <Leader>sw :FSHere<cr>
+
+    Bundle 'ervandew/supertab'
+        let g:SuperTabDefaultCompletionType = "<c-n>"
+
+    Bundle 'ctrlp.vim'
+        let g:ctrlp_cmd = 'CtrlPMRU'
+        let g:ctrlp_working_path_mode = 'ra'
+        " let g:ctrlp_user_command = 'find %s -type f | grep -v "`cat .gitignore`"'
+        let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|site_packages\|venv\|jupiter\/static\|jupiter\/template'
+
+    Bundle 'Lokaltog/vim-easymotion'
+        let g:EasyMotion_smartcase = 0
+        let g:EasyMotion_do_mapping = 0 " Disable default mappings
+        nmap s <Plug>(easymotion-s)
+        nmap S <Plug>(easymotion-s2)
+        map <Leader>j <Plug>(easymotion-j)
+        map <Leader>k <Plug>(easymotion-k)
+
+    Bundle 'The-NERD-tree'
+        nmap <leader>nt :NERDTree<cr>:set rnu<cr>
+        let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
+        let NERDTreeShowBookmarks=1
+        let NERDTreeShowFiles=1
+        let NERDTreeShowHidden=1
+        let NERDTreeIgnore=['\.$','\~$']
+        let NERDTreeShowLineNumbers=1
+        let NERDTreeWinPos='left'
+        nmap <F7> :NERDTreeToggle<CR>
+        " autocmd vimenter * NERDTree
+        autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") &&b:NERDTreeType == "primary") | q | endif
+
+    Bundle 'The-NERD-Commenter'
+        let NERDShutUp = 1
+        let g:NERDSpaceDelims = 1
+
+    Bundle 'vim-scripts/DrawIt'
+
+    Bundle 'majutsushi/tagbar'
+        let g:tagbar_ctags_bin='/usr/local/bin/ctags'
+        nmap <F8> :TagbarToggle<CR>
+        let tagbar_width=32
+        let g:tagbar_compact=1
+        let g:tagbar_type_cpp = {
+         \ 'kinds' : [
+         \ 'c:classes:0:1',
+         \ 'd:macros:0:1',
+         \ 'e:enumerators:0:0',
+         \ 'f:functions:0:1',
+         \ 'g:enumeration:0:1',
+         \ 'l:local:0:1',
+         \ 'm:members:0:1',
+         \ 'n:namespaces:0:1',
+         \ 'p:functions_prototypes:0:1',
+         \ 's:structs:0:1',
+         \ 't:typedefs:0:1',
+         \ 'u:unions:0:1',
+         \ 'v:global:0:1',
+         \ 'x:external:0:1'
+         \ ],
+         \ 'sro'        : '::',
+         \ 'kind2scope' : {
+         \ 'g' : 'enum',
+         \ 'n' : 'namespace',
+         \ 'c' : 'class',
+         \ 's' : 'struct',
+         \ 'u' : 'union'
+         \ },
+         \ 'scope2kind' : {
+         \ 'enum'      : 'g',
+         \ 'namespace' : 'n',
+         \ 'class'     : 'c',
+         \ 'struct'    : 's',
+         \ 'union'     : 'u'
+         \ }
+        \ }
+
+    Bundle 'UltiSnips'
+        " UltiSnips settings
+        let g:UltiSnipsSnippetDirectories=["mysnippets"]
+        let g:UltiSnipsExpandTrigger="<leader><tab>"
+        let g:UltiSnipsJumpForwardTrigger="<leader><tab>"
+        let g:UltiSnipsJumpBackwardTrigger="<leader><s-tab>"
+
+    Bundle 'Tabular'
+        nmap <Leader>a= :Tabularize /=<CR>
+        vmap <Leader>a= :Tabularize /=<CR>
+        nmap <Leader>a: :Tabularize /:\zs<CR>
+        vmap <Leader>a: :Tabularize /:\zs<CR>
+
+    Bundle 'Valloric/YouCompleteMe'
+        " let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+        let g:ycm_confirm_extra_conf=0      " Close warning of .ycm_extra_conf.py
+        let g:ycm_error_symbol = '>>'
+        let g:ycm_warning_symbol = '>*'
+        let g:ycm_complete_in_comments = 1
+        let g:ycm_complete_in_strings = 1
+        let g:ycm_cache_omnifunc=0
+        let g:ycm_semantic_triggers = {}
+        let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&']
+        let g:ycm_key_invoke_completion = '<C-Space>'
+        let g:ycm_seed_identifiers_with_syntax = 1
+        let g:ycm_autoclose_preview_window_after_completion = 1
+        set completeopt-=preview
+        autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+        inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+        nmap <F4> :YcmDiags<CR>
+        nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>	"force recomile with syntastic
+        nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
+        nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
+        nnoremap <leader>gg :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+    filetype plugin indent on
+" }
+
+
+" Functions {
+    autocmd BufNewFile *.cpp,*.[ch],*.sh,*.java exec ":call SetTitle()"
+    func! SetTitle()
+        if &filetype == 'sh'
+	    call setline(1,"\#########################################################################")
+	    call append(line("."), "\# File Name: ".expand("%"))
+            call append(line(".")+1, "\# Description:")
+	    call append(line(".")+2, "\# Author: zhangfeng")
+	    call append(line(".")+3, "\# mail: lapcace@gmail.com")
+	    call append(line(".")+4, "\# Created Time: ".strftime("%c"))
+            call append(line(".")+5, "\# Last modified: ".strftime("%c"))
+	    call append(line(".")+6, "\#########################################################################")
+	    call append(line(".")+7, "\#!/bin/bash")
+	    call append(line(".")+8, "")
+	else
+	    call setline(1, "/*************************************************************************")
+	    call append(line("."), "  > File Name: ".expand("%"))
+        call append(line(".")+1, "  > Description:")
+	    call append(line(".")+2, "  > Author: zhangfeng")
+	    call append(line(".")+3, "  > Mail: lapcace@gmail.com")
+	    call append(line(".")+4, "  > Created Time: ".strftime("  %Y-%m-%d %H:%M:%S"))
+            call append(line(".")+5, "  > Last modified: ".strftime(" %Y-%m-%d %H:%M:%S"))
+	    call append(line(".")+6, " ************************************************************************/")
+	    call append(line(".")+7, "")
+	endif
+	if &filetype == 'cpp'
+	    call append(line(".")+8, "#include <iostream>")
+	    call append(line(".")+9, "")
+	    call append(line(".")+10, "using namespace std;")
+	    call append(line(".")+11, "")
+	endif
+	if &filetype == 'c'
+	    call append(line(".")+8, "#include <stdio.h>")
+	    call append(line(".")+9, "")
+	endif
+	"   if &filetype == 'java'
+	"       call append(line(".")+8,"public class ".expand("%"))
+	"       call append(line(".")+9,"")
+	"   endif
+	autocmd BufNewFile * normal G
+    endfunc
+
+    autocmd BufWrite,BufWritePre,FileWritePre  *.c,*.cpp    ks|call LastModified()|'s
+    func! LastModified()
+        if line("$") > 20
+	    let l = 20
+	else
+	    let l = line("$")
+	endif
+	exe "1,".l."g/Last modified: /s/Last modified: .*/Last modified: ".
+			\strftime(" %Y-%m-%d %H:%M:%S") . "/e"
+    endfunc
+
+    " Replace function, parameter description
+    " confirm: confirm whether to replace
+    " wholeword: whether whole-word match
+    " replace: string to be replaced
+    func! Replace(confirm, wholeword, replace)
+        wa
+        let flag = ''
+        if a:confirm
+            let flag .= 'gec'
+        else
+            let flag .= 'ge'
+        endif
+        let search = ''
+        if a:wholeword
+            let search .= '\<' . escape(expand('<cword>'), '/\.*$^~[') . '\>'
+        else
+            let search .= expand('<cword>')
+        endif
+        let replace = escape(a:replace, '/\&~')
+        execute 'argdo %s/' . search . '/' . replace . '/' . flag . '| update'
+    endfunc
+" }
+"
