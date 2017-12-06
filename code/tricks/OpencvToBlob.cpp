@@ -18,17 +18,24 @@ for (int k = 0; k < img.channels(); ++k){
 
 
 //2 直接取地址data 对于112*96*3的图像大约可以快2ms
-Mat img = imread("D:\\Deeplearning\\Caffe\\caffe\\face_examples\\mtcnn_faceRecognition\\models\\Jennifer_Aniston_0016.jpg");
 vector<float>data(112 * 96 * 3, 0.0);
-img.convertTo(img, CV_32FC3);
-resize(img, img, cv::Size(width, height));
-img = (img - 127.5)*0.0078125; //减去均值后再归一
-cv::Vec3f * img_data = (cv::Vec3f *)img.data;
-for (int k = 0; k < spatial_size; ++k) {  // opencv----->blobs
-	data[k] = float(img_data[k][0]);
-	data[k + spatial_size] = float(img_data[k][1]);
-	data[k + 2 * spatial_size] = float(img_data[k][2]);
-}
-
+float* data = inputBlob->mutable_cpu_data();
+	Mat img = imread("D:\\Deeplearning\\Caffe\\caffe\\face_examples\\mtcnn_faceRecognition\\models\\Jennifer_Aniston_0016.jpg");
+	resize(img, img, cvSize(96, 112));
+	img.convertTo(img, CV_32FC3);
+	img = (img - 127.5)*0.0078125; //减去均值后再归一
+	int width = inputBlob->width();
+	int height = inputBlob->height();
+	int spatial_dim = width*height;
+	Blob<float>* inputBlob = _net->input_blobs()[0];
+	float* data = inputBlob->mutable_cpu_data();
+	
+	assert(img.channels() == 3);
+	cv::Vec3f* img_data = (cv::Vec3f*)img.data;
+	for (int k = 0; k < spatial_dim; ++k){
+		data[k] = (float)img_data[k][0];
+		data[k + spatial_dim] = (float)img_data[k][1];
+		data[k + 2 * spatial_dim] = (float)img_data[k][2];
+	}
 
 
