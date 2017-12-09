@@ -24,4 +24,9 @@ categories: Facial Expression
 
 说明：由于训练的时候节省时间，有的网络一起开始训练的，因此显存占用与训练，测试时间可能与单个测试的时间有差异.
 
+| modelStruct   | Gpu Memory | Batch_size | mAp    | model_size | train_time | test time |
+| ------------- | ---------- | ---------- | ------ | ---------- | ---------- | --------- |
+| MobileNet SSD | ~7.4G      | 24+8       | 0.7243 | ~23M       | 25k--~17h  | ~60ms     |
+| faceBox       | ~7.7G      | 8+4        |        |            |            |           |
+
 ##
