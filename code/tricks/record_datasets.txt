@@ -1,0 +1,13 @@
+# 仅仅记录下各个数据库的情况
+
+
+## Face-recognition
+
+1： LFW  labeled face in wild？
+    5749 subjects 13233 imgs
+2：MS-Celeb-1M 
+  small:13403 subjects 0.5 millons
+  large:58207 subjects 3.7 millons
+3:casia-webface
+  10575 subjects 494414 imgs
+  
