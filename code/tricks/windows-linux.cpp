@@ -3,4 +3,7 @@
 mkdir(dst_dir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 // windows 
 #include <dirent>
+#include <direct.h>
+#include <io.h>
 _mkdir(dst_dir.c_str());
+_access(dst_dir.c_str(),0) == -1;
